@@ -80,6 +80,8 @@ rag-ai-chatbot/
 │   └── vite.config.js
 ├── .env                   # Your GOOGLE_API_KEY (do not commit)
 ├── .gitignore
+├── Dockerfile             # Builds frontend + backend for deployment
+├── .dockerignore
 └── README.md
 ```
 
@@ -208,49 +210,52 @@ Model names are variables at the top of `rag.py`: `EMBEDDING_MODEL` (default `ge
 
 ---
 
-## 13. Deploy to Hugging Face Spaces (free)
+## 13. Deploy to Render (free)
 
-Everything is deployed-ready: a `Dockerfile` builds the React frontend, then runs
-FastAPI which serves **both** the API and the frontend — one single URL, nothing
-else to host. Your SQLite + ChromaDB + uploads live in `/data`, which Hugging Face
-keeps between restarts.
+Deployed live at: **https://rag-ai-chatbot-bknm.onrender.com**
 
-**Steps (about 10 minutes):**
+Everything is deployment-ready:
+- A `Dockerfile` builds the React frontend, then runs FastAPI which serves **both** the API and the frontend — one single URL, nothing else to host.
+- `DATA_DIR` (set to `/data` in the Dockerfile) controls where SQLite + ChromaDB + uploads are stored, so the paths work on any host.
 
-1. Create a free account at https://huggingface.co and get a token
-   (Settings → Access Tokens → New token → write).
-2. Go to **https://huggingface.co/new** → name it `rag-ai-chatbot` → **SDK: Docker** → Create.
-3. Clone your empty Space (replace `YOUR_USERNAME`):
+**Steps (about 15 minutes):**
+
+1. Create the GitHub repo:
+   - Go to **https://github.com/new** → name it `rag-ai-chatbot` → **do not** add a README → Create.
+   - Create a GitHub token once: avatar → **Settings → Developer settings → Personal access tokens → Tokens (classic)** → tick **`repo`** → Generate → copy it.
+2. Push the code (from the project folder):
    ```bash
-   git clone https://huggingface.co/YOUR_USERNAME/rag-ai-chatbot
+   git init -b main
+   git add -A
+   git commit -m "RAG AI chatbot: FastAPI + React + Gemini + ChromaDB"
+   git remote add origin https://github.com/YOUR_USERNAME/rag-ai-chatbot.git
+   git push -u origin main
+   # username = YOUR_USERNAME, password = your GitHub token
    ```
-4. Copy the deploy files into the cloned folder:
-   ```bash
-   # from inside the cloned rag-ai-chatbot folder
-   cp -r /path/to/your/local/rag-ai-chatbot/Dockerfile .
-   cp -r /path/to/your/local/rag-ai-chatbot/.dockerignore .
-   cp -r /path/to/your/local/rag-ai-chatbot/backend .
-   cp -r /path/to/your/local/rag-ai-chatbot/frontend .
-   ```
-   (skip `venv/`, `node_modules/`, `uploads/`, `chroma_db/`, `.env`, `documents.db`, `dist/`, `static/`)
-5. Commit and push (enter your username + the token as the password):
-   ```bash
-   git add . && git commit -m "deploy rag chatbot" && git push
-   ```
-6. On the Space page: **Settings → Variables and secrets → New secret**:
-   - Name: `GOOGLE_API_KEY`   Value: your real Gemini key
-7. Wait 3–5 minutes for the Docker build. Done!
+   > After pushing, **delete the token** (Settings → Developer settings → Personal access tokens). Render connects via GitHub OAuth, not the token.
+3. Create the Render app:
+   - Go to **https://render.com** → **Sign up** → **Continue with GitHub**.
+   - Dashboard → **New +** → **Web Service** → connect the `rag-ai-chatbot` repo.
+   - Render auto-detects the `Dockerfile`. Choose name `rag-ai-chatbot`, a region near you, and instance type **Free** → **Create Web Service**.
+4. Add your API key (backend reads it from the environment):
+   - Service page → **Environment** → **Add Environment Variable**:
+   - Key: `GOOGLE_API_KEY` → Value: your real Gemini key → **Save Changes** (it redeploys automatically).
+5. Wait 5–10 minutes for the Docker build. When it says **Live**, open your app.
 
-Your app is live at:
+Your app is live at: **https://rag-ai-chatbot.onrender.com** (Render appends a random suffix if the name is taken).
 
-**https://huggingface.co/spaces/YOUR_USERNAME/rag-ai-chatbot**
+**Updating the app later:** any `git push` to the repository makes Render rebuild automatically.
 
-> Note: no `.env` is needed on Hugging Face — the secret replaces it.
-> First upload may take ~10s (free-tier rate limits on Gemini embeddings).
+**Free-tier limits (normal behavior):**
+- The app **sleeps after ~15 min of no traffic** — the first visit after that takes about a minute to wake up.
+- Render free has an **ephemeral filesystem** — uploaded PDFs, SQLite and ChromaDB are lost when Render restarts the service. Just re-upload your PDFs.
+- Free Elastic/Key Value instances and disk require a paid plan if you need permanent storage.
+
+**Why not Hugging Face?** HF moved Docker Spaces behind a paid PRO plan in mid-2026 — Render's free tier still runs FastAPI web services.
 
 ---
 
 ## Notes
 
-- Everything is stored locally: PDFs in `backend/uploads/`, vectors in `backend/chroma_db/`, metadata in SQLite. Restart the backend any time — your data survives.
-- This is a **learning project** by design: no auth, no Docker, no Redis, no cloud. Read every file — it is intentionally simple.
+- Everything is stored locally: PDFs in `backend/uploads/`, vectors in `backend/chroma_db/`, metadata in SQLite. Restart the backend any time — your data survives (locally). On Render's free tier it is ephemeral.
+- This is a **learning project** by design: no auth, no Redis, no cloud vector database, no microservices. Read every file — it is intentionally simple.
