@@ -1,0 +1,22 @@
+# Web server framework
+fastapi
+uvicorn[standard]
+
+# LangChain core + text splitting
+langchain
+langchain-text-splitters
+
+# Google Gemini integration (embeddings + chat)
+langchain-google-genai
+
+# ChromaDB vector store integration for LangChain
+langchain-chroma
+
+# Extract text from PDF files
+pypdf
+
+# Load .env files safely
+python-dotenv
+
+# Required by FastAPI to handle file uploads (multipart/form-data)
+python-multipart

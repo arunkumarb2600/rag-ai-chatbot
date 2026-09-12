@@ -1,0 +1,17 @@
+# Python stuff that must not be sent to the build
+**/venv/
+**/__pycache__/
+**/*.pyc
+backend/documents.db
+backend/uploads/
+backend/chroma_db/
+backend/static/
+
+# Node stuff
+**/node_modules/
+frontend/dist/
+
+# Secrets and local files
+.env
+.git/
+.gitignore

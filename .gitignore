@@ -1,0 +1,25 @@
+# Secrets - never commit your API key
+.env
+
+# Python virtual environment
+venv/
+
+# Python cache files
+**/__pycache__/
+*.pyc
+
+# ChromaDB vector database (rebuilt from PDFs)
+chroma_db/
+
+# SQLite document metadata (rebuilt from PDFs)
+documents.db
+backend/documents.db
+
+# Uploaded PDFs
+uploads/
+
+# Frontend dependencies
+node_modules/
+
+# Build output
+frontend/dist/
