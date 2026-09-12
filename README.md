@@ -242,9 +242,15 @@ Everything is deployment-ready:
    - Key: `GOOGLE_API_KEY` → Value: your real Gemini key → **Save Changes** (it redeploys automatically).
 5. Wait 5–10 minutes for the Docker build. When it says **Live**, open your app.
 
-Your app is live at: **https://rag-ai-chatbot.onrender.com** (Render appends a random suffix if the name is taken).
+Your app is live at: **https://rag-ai-chatbot-bknm.onrender.com** — the base name `rag-ai-chatbot.onrender.com` was already taken, so Render appended a random suffix (`-bknm`).
 
 **Updating the app later:** any `git push` to the repository makes Render rebuild automatically.
+
+**Want a cleaner URL (e.g. `rag-ai-chatbot.onrender.com`)?**
+After creation the onrender.com subdomain is locked to your service name. To change it:
+1. In Render, click **New + → Web Service** again, pick the same repo, and name it **exactly** `rag-ai-chatbot` (the suffix only appears when that name is taken).
+2. Re-add the environment variable `GOOGLE_API_KEY`.
+3. Wait for **Live**, open the new URL, then **delete** the old `-bknm` service in the dashboard.
 
 **Free-tier limits (normal behavior):**
 - The app **sleeps after ~15 min of no traffic** — the first visit after that takes about a minute to wake up.
